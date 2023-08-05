@@ -1,0 +1,122 @@
+openapi: 3.0.0
+info:
+  title: Youtube Downloader API
+  description: Download videos from [Youtube](https://youtube.com)
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3001
+    description: Local development environment
+
+paths:
+  /suggestions:
+    post:
+      tags:
+        - API
+      summary: Get list of suggestions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppSuggestionsDto'
+      responses:
+        default:
+          description: An object that contains the list of suggestions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+
+  /videos:
+    post:
+      tags:
+        - API
+      summary: Get list of videos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppVideosDto'
+      responses:
+        default:
+          description: An object that contains the list of videos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  videos:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties:
+                        $ref: '#/components/schemas/AnyValue'
+
+  /download:
+    get:
+      tags:
+        - API
+      summary: Download video from youtube in mp3 or mp4 format
+      parameters:
+        - in: query
+          name: video_id
+          required: true
+          schema:
+            type: string
+            example: xvFZjo5PgG0
+        - in: query
+          name: type
+          required: true
+          schema:
+            enum: [audio, video]
+            example: audio
+        - in: query
+          name: prevent_download
+          schema:
+            enum: [true, false]
+            example: false
+
+      responses:
+        default:
+          description: A file
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+            video/mp4:
+              schema:
+                type: string
+                format: binary
+
+components:
+  schemas:
+    AnyValue: {}
+
+    AppSuggestionsDto:
+      properties:
+        query:
+          type: string
+          example: hello
+        limit:
+          type: integer
+          example: 5
+      required:
+        - query
+
+    AppVideosDto:
+      properties:
+        query:
+          type: string
+          example: hello, world
+        limit:
+          type: integer
+          example: 3
+      required:
+        - query
